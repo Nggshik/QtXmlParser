@@ -19,7 +19,6 @@ int Model::parseXML(const QString& directoryPath)
         {
             if(fileCheckRX.exactMatch(info.fileName()))
             {
-                //parse file info.filePath()
                 auto xmlParameters = parseXMLfile(info.filePath());
                 if(xmlParameters.size())
                     m_table.append(std::move(xmlParameters));
