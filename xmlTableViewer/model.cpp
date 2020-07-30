@@ -16,6 +16,7 @@ int Model::parseXML(const QString& directoryPath)
 
     QFileInfoList filesInfo = dir.entryInfoList();
     m_progress.setProgressMax(filesInfo.size()-2);
+
     for(auto info : filesInfo)
     {
         if(info.isFile())
@@ -23,15 +24,16 @@ int Model::parseXML(const QString& directoryPath)
             if(fileCheckRX.exactMatch(info.fileName()))
             {
                 auto xmlParameters = parseXMLfile(info.filePath());
-                if(xmlParameters.size())
+                if(xmlParameters.size()){
+                    m_progress.okCountUp(xmlParameters.size());
                     m_table.append(std::move(xmlParameters));
+                }
             }
             else
             {
-                qDebug() << "MODEL::FILE::ERROR::" << info.fileName();
-                m_errorFiles.append(info.fileName());
+                pushProgressError(info.fileName());
             }
-            m_progress.progressStepUp();
+            m_progress.progressStepForward();
         }
 
     }
@@ -63,9 +65,7 @@ QVector<QPair<QString, QString>> Model::parseXMLfile(const QString &filePath)
                 }
                 else
                 {
-                    qDebug() << "MODEL::FILEREAD::ERROR::" << file.fileName() << "/n At line -" << line;
-                    m_progress.pushError(file.fileName());
-                    m_errorFiles.append(file.fileName());
+                    pushProgressError(file.fileName() + "\n At line -" + line);
                     vec.clear();
                     break;
                 }
@@ -78,8 +78,7 @@ QVector<QPair<QString, QString>> Model::parseXMLfile(const QString &filePath)
                 }
                 else
                 {
-                    qDebug() << "MODEL::FILEREAD::ERROR::" << file.fileName() << "/n At line -" << line;
-                    m_errorFiles.append(file.fileName());
+                    pushProgressError(file.fileName() + "\n At line -" + line);
                     vec.clear();
                     break;
                 }
@@ -89,8 +88,13 @@ QVector<QPair<QString, QString>> Model::parseXMLfile(const QString &filePath)
     }
     else
     {
-        qDebug() << "MODEL::FILE::ERROR::" << file.fileName();
-        m_errorFiles.append(file.fileName());
+        pushProgressError(file.fileName());
     }
     return  vec;
+}
+
+void Model::pushProgressError(const QString& err)
+{
+    qDebug() << "MODEL::FILE::ERROR::" << err;
+    m_progress.pushError(err);
 }

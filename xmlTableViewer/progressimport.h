@@ -12,7 +12,9 @@ public:
     void setErrorsCountString(const QString& err);
     void pushError(const QString& err);
     void setProgressMax(size_t max);
-    void progressStepUp();
+    void progressStepForward();
+    void errorCountUp(size_t count = 1);
+    void okCountUp(size_t count = 1);
 signals:
 
 
@@ -21,6 +23,8 @@ private:
     QProgressBar *m_pProgress;
     QLabel* m_pLabel;
     QPlainTextEdit* m_pPlainText;
+    size_t m_okCount = 0;
+    size_t m_errCount = 0;
 };
 
 #endif // PROGRESSIMPORT_H

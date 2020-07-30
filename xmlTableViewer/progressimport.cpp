@@ -6,7 +6,7 @@ ProgressImport::ProgressImport(QWidget *parent) : QWidget(parent),
     m_pLabel(new QLabel),
     m_pPlainText(new QPlainTextEdit)
 {
-    setFixedSize(300,400);
+    setFixedSize(500,400);
     setWindowTitle("Progress");
 
     m_pPlainText->document()->setMaximumBlockCount(100);
@@ -34,7 +34,8 @@ ProgressImport::ProgressImport(QWidget *parent) : QWidget(parent),
 
 void ProgressImport::pushError(const QString &err)
 {
-    m_pPlainText->insertPlainText(err);
+    errorCountUp();
+    m_pPlainText->insertPlainText(err+'\n');
 }
 
 void ProgressImport::setErrorsCountString(const QString &err)
@@ -47,7 +48,19 @@ void ProgressImport::setProgressMax(size_t max)
     m_pProgress->setMaximum(max);
 }
 
-void ProgressImport::progressStepUp()
+void ProgressImport::progressStepForward()
 {
     m_pProgress->setValue(m_pProgress->value()+1);
+}
+
+void ProgressImport::okCountUp(size_t count)
+{
+    m_okCount += count;
+    m_pLabel->setText(QString("Imported = %1, Errors = %2").arg(m_okCount).arg(m_errCount));
+}
+
+void ProgressImport::errorCountUp(size_t count)
+{
+    m_errCount += count;
+    m_pLabel->setText(QString("Imported = %1, Errors = %2").arg(m_okCount).arg(m_errCount));
 }

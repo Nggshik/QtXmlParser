@@ -17,6 +17,7 @@ signals:
 private:
     int parseXML(const QString& directoryPath);
     QVector<QPair<QString, QString>> parseXMLfile(const QString &filePath);
+    void pushProgressError(const QString& err);
 private:
     QVector<QVector<QPair<QString, QString>>> m_table;
     QString m_path;
