@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QtCore>
 
+#include "progressimport.h"
+
 class Model : public QObject
 {
     Q_OBJECT
@@ -19,7 +21,7 @@ private:
     QVector<QVector<QPair<QString, QString>>> m_table;
     QString m_path;
     QStringList m_errorFiles;
-
+    ProgressImport m_progress;
 };
 
 #endif // MODEL_H

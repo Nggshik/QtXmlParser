@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    Model md;
+    Model* md = new Model;
 }
 
 MainWindow::~MainWindow()

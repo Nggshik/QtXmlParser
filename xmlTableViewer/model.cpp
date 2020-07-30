@@ -1,8 +1,10 @@
 #include "model.h"
+
 #include <QFileDialog>
 
 Model::Model(QObject *parent) : QObject(parent)
 {
+    m_progress.show();
     parseXML(QFileDialog::getExistingDirectory());
 }
 
@@ -13,6 +15,7 @@ int Model::parseXML(const QString& directoryPath)
     fileCheckRX.setPatternSyntax(QRegExp::Wildcard);
 
     QFileInfoList filesInfo = dir.entryInfoList();
+    m_progress.setProgressMax(filesInfo.size()-2);
     for(auto info : filesInfo)
     {
         if(info.isFile())
@@ -28,6 +31,7 @@ int Model::parseXML(const QString& directoryPath)
                 qDebug() << "MODEL::FILE::ERROR::" << info.fileName();
                 m_errorFiles.append(info.fileName());
             }
+            m_progress.progressStepUp();
         }
 
     }
@@ -60,6 +64,7 @@ QVector<QPair<QString, QString>> Model::parseXMLfile(const QString &filePath)
                 else
                 {
                     qDebug() << "MODEL::FILEREAD::ERROR::" << file.fileName() << "/n At line -" << line;
+                    m_progress.pushError(file.fileName());
                     m_errorFiles.append(file.fileName());
                     vec.clear();
                     break;

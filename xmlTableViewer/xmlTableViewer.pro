@@ -31,11 +31,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    model.cpp
+    model.cpp \
+    progressimport.cpp
 
 HEADERS += \
     mainwindow.h \
-    model.h
+    model.h \
+    progressimport.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
