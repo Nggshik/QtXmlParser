@@ -12,10 +12,10 @@ class Model : public QObject
 public:
     explicit Model(QObject *parent = nullptr);
 
-signals:
-
-private:
     int parseXML(const QString& directoryPath);
+signals:
+    void xmlParsed(const QVector<QVector<QPair<QString, QString>>>& table);
+private:
     QVector<QPair<QString, QString>> parseXMLfile(const QString &filePath);
     void pushProgressError(const QString& err);
 private:

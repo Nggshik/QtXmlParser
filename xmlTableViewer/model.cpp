@@ -4,12 +4,13 @@
 
 Model::Model(QObject *parent) : QObject(parent)
 {
-    m_progress.show();
-    parseXML(QFileDialog::getExistingDirectory());
+
 }
 
 int Model::parseXML(const QString& directoryPath)
 {
+    m_progress.show();
+
     QDir dir(directoryPath);
     QRegExp fileCheckRX("*.xml");
     fileCheckRX.setPatternSyntax(QRegExp::Wildcard);
@@ -37,6 +38,7 @@ int Model::parseXML(const QString& directoryPath)
         }
 
     }
+    emit xmlParsed(m_table);
     return 0;
 }
 

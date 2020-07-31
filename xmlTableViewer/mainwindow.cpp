@@ -1,15 +1,21 @@
 #include "mainwindow.h"
-#include "model.h"
-#include <QtCore>
+
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      m_pModel(new Model(this)),
+      m_pTable(new TableWidget)
 {
-    Model* md = new Model;
-    md->deleteLater();
+    setCentralWidget(m_pTable);
+    connect(m_pTable,&TableWidget::importData,this, &MainWindow::importXML);
+    connect(m_pModel,&Model::xmlParsed, m_pTable, &TableWidget::fillTable);
 }
 
 MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::importXML()
+{
+    m_pModel->parseXML(QFileDialog::getExistingDirectory());
+}

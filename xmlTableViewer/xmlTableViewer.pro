@@ -32,12 +32,16 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     model.cpp \
-    progressimport.cpp
+    progressimport.cpp \
+    tablemodel.cpp \
+    tablewidget.cpp
 
 HEADERS += \
     mainwindow.h \
     model.h \
-    progressimport.h
+    progressimport.h \
+    tablemodel.h \
+    tablewidget.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
