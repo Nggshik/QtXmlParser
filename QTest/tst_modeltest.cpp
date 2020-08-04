@@ -1,7 +1,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
+#include <QAbstractItemModelTester>
+
 
 class Modeltest : public QObject
 {

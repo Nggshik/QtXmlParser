@@ -1,17 +1,17 @@
-QMAKE_EXTRA_TARGETS += before_build makefilehook
+#QMAKE_EXTRA_TARGETS += before_build makefilehook
 
-makefilehook.target = $(MAKEFILE)
-makefilehook.depends = .beforebuild
+#makefilehook.target = $(MAKEFILE)
+#makefilehook.depends = .beforebuild
 
-PRE_TARGETDEPS += .beforebuild
-
-
-before_build.target = .beforebuild
-before_build.depends = FORCE
-before_build.commands = chcp 1251
+#PRE_TARGETDEPS += .beforebuild
 
 
-QT       += core gui
+#before_build.target = .beforebuild
+#before_build.depends = FORCE
+#before_build.commands = chcp 1251
+
+
+QT       += core gui testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,17 +31,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    model.cpp \
     progressimport.cpp \
     tablemodel.cpp \
-    tablewidget.cpp
+    tableviewcontroller.cpp
 
 HEADERS += \
     mainwindow.h \
-    model.h \
     progressimport.h \
     tablemodel.h \
-    tablewidget.h
+    tableviewcontroller.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

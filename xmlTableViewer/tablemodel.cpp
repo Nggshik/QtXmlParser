@@ -7,13 +7,13 @@ TableModel::TableModel(QObject* pobj) : QAbstractTableModel(pobj)
 
 int TableModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
+    if(parent.isValid()) return 0; //no children
     return m_files.size();
 }
 
 int TableModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
+    if(parent.isValid()) return 0; //no children
     return m_keys.count();
 }
 
@@ -44,22 +44,22 @@ QVariant TableModel::data(const QModelIndex& index, int role) const
     {
         return QVariant();
     }
-    //Debug
-    QVariant res;
-    if(role == Qt::DisplayRole || role == Qt::EditRole)
-    {
-        auto row = index.row();
-        auto column = index.column();
-        auto strColumn = m_keys[column];
-        res = m_files[row][strColumn];
-        qDebug() << "Taked at row = " << row << "      Taked at column = " << column << "\nResult = " << res;
-    }
+//    //Debug
+//    QVariant res;
+//    if(role == Qt::DisplayRole || role == Qt::EditRole)
+//    {
+//        auto row = index.row();
+//        auto column = index.column();
+//        auto strColumn = m_keys[column];
+//        res = m_files[row][strColumn];
+//        qDebug() << "Taked at row = " << row << "      Taked at column = " << column << "\nResult = " << res;
+//    }
 
-    return res;
+//    return res;
 
     return (role != Qt::DisplayRole && role != Qt::EditRole)
-            ? m_files[index.row()][m_keys[index.column()]]
-        : QVariant();
+               ? QVariant()
+               : m_files[index.row()][m_keys[index.column()]];
 }
 
 bool TableModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -89,17 +89,22 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool TableModel::appendFile(QHash<QString, QVariant>&& file)
 {
+    if(m_keys.isEmpty())
+    {
+        beginInsertColumns(QModelIndex(),m_keys.count(), m_keys.count() + file.keys().size()-1);
+        for(auto& key : file.keys())
+            m_keys.append(key);
+        endInsertColumns();
+    }
+
     int row = m_files.count();
 
-        beginInsertRows(QModelIndex(), row,row);
-        m_files.append(file);
-        endInsertRows();
-        if(!m_keys.count())
-        {
-            for(auto& key : file.keys())
-                m_keys.append(key);
-        }
-        return true;
+    beginInsertRows(QModelIndex(), row,row);
+    m_files.append(file);
+    endInsertRows();
+
+
+    return true;
 
 }
 
@@ -110,14 +115,18 @@ void TableModel::removeSelected()
 
 int TableModel::parseXML(const QString& directoryPath)
 {
-    m_progress.show();
+    if(m_pProgress != nullptr)
+        m_pProgress->deleteLater();
+
+    m_pProgress = new ProgressImport();
+    m_pProgress->show();
 
     QDir dir(directoryPath);
     QRegExp fileCheckRX("*.xml");
     fileCheckRX.setPatternSyntax(QRegExp::Wildcard);
 
     QFileInfoList filesInfo = dir.entryInfoList();
-    m_progress.setProgressMax(filesInfo.size()-2);
+    m_pProgress->setProgressMax(filesInfo.size()-2);
 
     for(auto info : filesInfo)
     {
@@ -127,15 +136,15 @@ int TableModel::parseXML(const QString& directoryPath)
             {
                 auto xmlParameters = parseXMLfile(info.filePath());
                 if(xmlParameters.size()){
-                    m_progress.okCountUp(xmlParameters.size());
-                    appendFile(std::move(xmlParameters));
+                    m_pProgress->okCountUp(xmlParameters.size());
+                    this->appendFile(std::move(xmlParameters));
                 }
             }
             else
             {
                 pushProgressError(info.fileName());
             }
-            m_progress.progressStepForward();
+            m_pProgress->progressStepForward();
         }
 
     }
@@ -199,7 +208,22 @@ QHash<QString, QVariant> TableModel::parseXMLfile(const QString &filePath)
 void TableModel::pushProgressError(const QString& err)
 {
     qDebug() << "MODEL::FILE::ERROR::" << err;
-    m_progress.pushError(err);
+    m_pProgress->pushError(err);
+}
+
+void TableModel::clear()
+{
+    if(m_files.isEmpty()){
+        Q_ASSERT(m_keys.isEmpty());
+        return;
+    }
+    beginRemoveRows(QModelIndex(), 0,m_files.size()-1);
+    m_files.clear();
+    endRemoveRows();
+
+    beginRemoveColumns(QModelIndex(),0, m_keys.count()-1);
+    m_keys.clear();
+    endRemoveColumns();
 }
 
 
