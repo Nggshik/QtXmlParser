@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include <QtWidgets>
+
 #include "tablemodel.h"
+#include "dialogmapper.h"
 
 class TableViewController : public QWidget
 {
@@ -17,12 +19,14 @@ signals:
 private:
     void importData();
     void clear();
-    void customMenuRequest();
+    void customContextMenuRequested(QPoint position);
     void editRecord();
 
 private:
     TableModel* m_pModel;
     QTableView* m_pTableView;
+    DialogMapper* m_pMapper;
+
 };
 
 #endif // TABLEVIEWCONTROLER_H

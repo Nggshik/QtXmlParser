@@ -35,6 +35,7 @@ private:
     Files m_files;
     QVector<QString> m_keys;
     ProgressImport* m_pProgress = nullptr;
+    QMutex m_mutex;
 };
 
 #endif // TABLEMODEL_H

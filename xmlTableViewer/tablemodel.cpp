@@ -66,6 +66,7 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
     if(index.isValid() && role == Qt::EditRole)
     {
+        QMutexLocker locker(&m_mutex);
         m_files[index.row()][m_keys[index.column()]] = value;
         emit dataChanged(index, index);
         return true;
@@ -89,12 +90,16 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool TableModel::appendFile(QHash<QString, QVariant>&& file)
 {
+    QMutexLocker locker(&m_mutex);
     if(m_keys.isEmpty())
     {
-        beginInsertColumns(QModelIndex(),m_keys.count(), m_keys.count() + file.keys().size()-1);
+        auto first = m_keys.count();
+        auto last = m_keys.count() + file.keys().size()-1;
+        beginInsertColumns(QModelIndex(),first, last);
         for(auto& key : file.keys())
             m_keys.append(key);
         endInsertColumns();
+        emit headerDataChanged(Qt::Horizontal,first, last);
     }
 
     int row = m_files.count();
@@ -213,6 +218,7 @@ void TableModel::pushProgressError(const QString& err)
 
 void TableModel::clear()
 {
+    QMutexLocker locker(&m_mutex);
     if(m_files.isEmpty()){
         Q_ASSERT(m_keys.isEmpty());
         return;

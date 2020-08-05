@@ -1,5 +1,6 @@
 #include "tableviewcontroller.h"
 
+
 #include <QAbstractItemModelTester>
 
 TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
@@ -7,6 +8,20 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     m_pTableView(new QTableView)
 {
     new QAbstractItemModelTester(m_pModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
+
+    QThread* thread = new QThread();
+    m_pModel->moveToThread(thread);
+
+    //TODO safety
+    //    connect(thread, SIGNAL(started()), task, SLOT(doWork()));
+    //    connect(task, SIGNAL(workFinished()), thread, SLOT(quit()));
+
+    //    // automatically delete thread and task object when work is done:
+    //    connect(task, SIGNAL(workFinished()), task, SLOT(deleteLater()));
+    //    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    thread->start();
 }
 
 void TableViewController::createUI()
@@ -23,6 +38,7 @@ void TableViewController::createUI()
     m_pTableView->horizontalHeader()->setStretchLastSection(true);
     m_pTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_pTableView->verticalHeader()->hide();
+    m_pTableView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_pTableView->show();
 
 
@@ -38,24 +54,16 @@ void TableViewController::createUI()
     connect(pClearBtn, &QPushButton::clicked, this, &TableViewController::clear);
 
     //Connect context actions
-    connect(m_pTableView, &QTableView::customContextMenuRequested, this, &TableViewController::customMenuRequest);
+    connect(m_pTableView, &QTableView::customContextMenuRequested, this, &TableViewController::customContextMenuRequested);
 
-    QDataWidgetMapper* mapper = new QDataWidgetMapper();
-    mapper->setModel(m_pModel);
-
-    QLineEdit* pTemp = new QLineEdit;
-    mapper->addMapping(pTemp, 1);
-    pTemp = new QLineEdit;
-    mapper->addMapping(pTemp, 2);
-    pTemp = new QLineEdit;
-    mapper->addMapping(pTemp, 3);
-    /* Ручное подтверждение изменения данных
-     * через mapper
-     * */
-    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-
+    m_pMapper = new DialogMapper;
+    m_pMapper->setModel(m_pModel);
 
     setLayout(pLayout);
+
+
+
+
 }
 
 void TableViewController::importData()
@@ -70,11 +78,22 @@ void TableViewController::clear()
 
 void TableViewController::editRecord()
 {
-    ;
-//    m_pModel->
+    m_pMapper->editRecord(m_pTableView->selectionModel()->currentIndex().row());
 }
 
-void TableViewController::customMenuRequest()
+void TableViewController::customContextMenuRequested(QPoint position)
 {
+    /* Создаем объект контекстного меню */
+    QMenu * menu = new QMenu(this);
+    /* Создаём действия для контекстного меню */
+    QAction * editDevice = new QAction("Edit", this);
+    QAction * deleteDevice = new QAction("Delete", this);
+    /* Подключаем СЛОТы обработчики для действий контекстного меню */
+    connect(editDevice, &QAction::triggered, this, &TableViewController::editRecord);     // Обработчик вызова диалога редактирования
+    connect(deleteDevice, &QAction::triggered, this, &TableViewController::clear); // Обработчик удаления записи
 
+    menu->addAction(editDevice);
+    menu->addAction(deleteDevice);
+
+    menu->popup(m_pTableView->viewport()->mapToGlobal(position));
 }
