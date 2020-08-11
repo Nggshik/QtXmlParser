@@ -26,6 +26,7 @@ private:
     void clear();
     void customContextMenuRequested(QPoint position);
     void editRecord();
+    void exportRecord();
 
 private:
     TableModel* m_pModel;

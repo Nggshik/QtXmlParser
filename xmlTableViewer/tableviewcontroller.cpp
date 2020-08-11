@@ -1,5 +1,5 @@
 #include "tableviewcontroller.h"
-
+#include "exportfactory.h"
 
 #include <QAbstractItemModelTester>
 
@@ -128,16 +128,38 @@ void TableViewController::customContextMenuRequested(QPoint position)
     /* Создаем объект контекстного меню */
     QMenu * menu = new QMenu(this);
     /* Создаём действия для контекстного меню */
-    QAction * editDevice = new QAction("Edit", this);
-    QAction * deleteDevice = new QAction("Delete", this);
+    QAction* editDevice = new QAction("Edit", this);
+    QAction* deleteDevice = new QAction("Delete", this);
+    QAction* exportRecord = new QAction("Export",this);
 
     /* Подключаем СЛОТы обработчики для действий контекстного меню */
     connect(editDevice, &QAction::triggered, this, &TableViewController::editRecord);     // Обработчик вызова диалога редактирования
     connect(deleteDevice, &QAction::triggered, this, &TableViewController::clear); // Обработчик удаления записи
+    connect(exportRecord, &QAction::triggered, this, &TableViewController::exportRecord); // Обработчик удаления записи
 
     menu->addAction(editDevice);
     menu->addAction(deleteDevice);
+    menu->addAction(exportRecord);
 
     menu->popup(m_pTableView->viewport()->mapToGlobal(position));
+}
+
+void TableViewController::exportRecord()
+{
+    ExportFactory fac;
+
+    auto row = m_pTableView->selectionModel()->currentIndex().row();
+    QHash<QString, QVariant> record;
+    auto count = m_pModel->columnCount();
+    for(int i = 0; i < count; ++i)
+    {
+        record.insert(m_pModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), m_pModel->index(row,i).data());
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this, "Export record",QDir::currentPath(),"Files format (*.xml)");
+    auto exporter = fac.createStrategy(filename);
+    if(exporter != nullptr)
+        exporter->exportToFile(record);
+
 }
 

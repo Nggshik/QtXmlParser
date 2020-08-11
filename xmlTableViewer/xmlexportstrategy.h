@@ -5,14 +5,14 @@
 
 #include "IExportStrategy.h"
 
-class xmlExportStrategy : public IExportStrategy
+class XmlExportStrategy : public IExportStrategy
 {
 public:
-    xmlExportStrategy();
-    bool exportToFile() override;
-    void addRecord(QHash<QString, QVariant> &record) override;
-    bool setFileName(const QString& filename);
-    void setDirToExport(const QString& dirPath);
+    XmlExportStrategy();
+    bool exportToFile(const QHash<QString, QVariant> &record) override;
+    bool setFileName(const QString& filename) override;
+    void addRecord(const QHash<QString, QVariant> &record);
+    bool setDirToExport(const QString& dirPath);
 private:
     QString m_fileName;
     QString m_dirPath;

@@ -31,6 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     databaselite.cpp \
     dialogmapper.cpp \
+    exportfactory.cpp \
     main.cpp \
     mainwindow.cpp \
     progressimport.cpp \
@@ -43,6 +44,7 @@ HEADERS += \
     IExportStrategy.h \
     databaselite.h \
     dialogmapper.h \
+    exportfactory.h \
     mainwindow.h \
     progressimport.h \
     tablemodel.h \
