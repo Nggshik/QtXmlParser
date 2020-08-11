@@ -36,15 +36,18 @@ SOURCES += \
     progressimport.cpp \
     tablemodel.cpp \
     tableviewcontroller.cpp \
+    xmlexportstrategy.cpp \
     xmlparser.cpp
 
 HEADERS += \
+    IExportStrategy.h \
     databaselite.h \
     dialogmapper.h \
     mainwindow.h \
     progressimport.h \
     tablemodel.h \
     tableviewcontroller.h \
+    xmlexportstrategy.h \
     xmlparser.h
 
 # Default rules for deployment.
