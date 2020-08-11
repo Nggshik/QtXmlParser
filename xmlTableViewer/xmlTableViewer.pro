@@ -33,7 +33,6 @@ SOURCES += \
     dialogmapper.cpp \
     exportfactory.cpp \
     main.cpp \
-    mainwindow.cpp \
     progressimport.cpp \
     tablemodel.cpp \
     tableviewcontroller.cpp \
@@ -45,7 +44,6 @@ HEADERS += \
     databaselite.h \
     dialogmapper.h \
     exportfactory.h \
-    mainwindow.h \
     progressimport.h \
     tablemodel.h \
     tableviewcontroller.h \

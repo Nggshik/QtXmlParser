@@ -14,12 +14,8 @@ IExportStrategy* ExportFactory::createStrategy(const QString &filename)
     if(filename.isEmpty())
         return nullptr;
     QFile file(filename);
-//    if(!file.open(QIODevice::WriteOnly))
-//    {
-//        qDebug() << "EXPORTFACTORY::CREATESTRATEGY::ERROR" << filename;
-//        return nullptr;
-//    }
     QFileInfo info(file);
+
     IExportStrategy* strategy = nullptr;
     switch (types.indexOf(info.suffix()))
     {

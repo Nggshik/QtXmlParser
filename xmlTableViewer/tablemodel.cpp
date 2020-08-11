@@ -62,20 +62,6 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
     return false;
 }
 
-//bool TableModel::insertRows(int row, int count, const QModelIndex &parent)
-//{
-//    if(parent.isValid())
-//    {
-//        return false;
-//    }
-
-//    beginInsertRows(QModelIndex(), row, row+count-1);
-//    for(int i = 0; i < count; ++i)
-//    {
-//       //TODO
-//    }
-//}
-
 bool TableModel::appendFile(const QHash<QString, QVariant>& file)
 {
     if(m_keys.isEmpty())
@@ -99,35 +85,17 @@ bool TableModel::appendFile(const QHash<QString, QVariant>& file)
     return true;
 }
 
-void TableModel::removeSelected()
+bool TableModel::removeRow(int row, const QModelIndex& parent)
 {
-    ; //TODO
+    Q_UNUSED(parent);
+
+    beginRemoveRows(QModelIndex(), row,row);
+    m_files.removeAt(row);
+    endRemoveRows();
+    emit rowRemoved(row);
+    return true;
 }
 
-//void TableModel::connectDB()
-//{
-//    const QMutexLocker locker(&m_mutex);
-//    if(m_db->connectDB())
-//    {
-//        auto files = m_db->selectAll();
-//        int first = m_files.count();
-//        int last = m_files.count() + files.count() - 1;
-//        beginInsertRows(QModelIndex(), first,last);
-//        m_files.append(files);
-//        endInsertRows();
-
-//        if(m_keys.isEmpty() && m_files.count())
-//        {
-//            auto first = m_keys.count();
-//            auto last = m_keys.count() + m_files[0].keys().size()-1;
-//            beginInsertColumns(QModelIndex(),first, last);
-//            for(auto& key : m_files[0].keys())
-//                m_keys.append(key);
-//            endInsertColumns();
-//            emit headerDataChanged(Qt::Horizontal,first, last);
-//        }
-//    }
-//}
 
 
 void TableModel::clear()

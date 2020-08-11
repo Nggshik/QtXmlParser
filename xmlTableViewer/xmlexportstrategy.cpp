@@ -27,15 +27,9 @@ bool XmlExportStrategy::exportToFile(const QHash<QString, QVariant> &record)
     }
     out << "</root>\n";
 
-
-//    file.write(buffer.data());
     return true;
 }
 
-void XmlExportStrategy::addRecord(const QHash<QString, QVariant> &record)
-{
-    m_data.append(record);
-}
 
 bool XmlExportStrategy::setFileName(const QString &filename){
 
@@ -50,16 +44,4 @@ bool XmlExportStrategy::setFileName(const QString &filename){
     return false;
 }
 
-//bool XmlExportStrategy::setDirToExport(const QString &dirPath)
-//{
-//    QDir dir(dirPath);
-//    if(dir.exists())
-//    {
-//        m_dirPath = dirPath;
-//        return true;
-//    }
 
-//    qDebug() << "XMLEXPORTSTRATEGY::SETDIRTOEXPORT::ERROR::" << dirPath;
-//    return false;
-
-//}

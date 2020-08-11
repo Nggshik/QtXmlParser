@@ -10,22 +10,7 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     m_pDataBase(new DataBaseLite),
     m_pProgress(new ProgressImport)
 {
-//    new QAbstractItemModelTester(m_pModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
-
-//    QThread* thread = new QThread();
-//    m_pModel->moveToThread(thread);
-
-//    //TODO safety
-//    connect(thread, &QThread::started, m_pModel, &TableModel::connectDB);
-////    connect(thread, &QThread::started, this, &TableViewController::createUI);
-//    //    connect(task, SIGNAL(workFinished()), thread, SLOT(quit()));
-
-//    //    // automatically delete thread and task object when work is done:
-//    //    connect(task, SIGNAL(workFinished()), task, SLOT(deleteLater()));
-//    //    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-
-//    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-//    thread->start();
+   new QAbstractItemModelTester(m_pModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 
     QThread* pXmlThread = new QThread();
     m_pXmlParser->moveToThread(pXmlThread);
@@ -44,6 +29,7 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     connect(m_pDataBase,&DataBaseLite::dataSelected, m_pModel, &TableModel::appendFile, Qt::QueuedConnection);
     connect(m_pModel, &TableModel::tableCreated,m_pDataBase,&DataBaseLite::createDB,  Qt::QueuedConnection);
     connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::clear, Qt::QueuedConnection);
+    connect(m_pModel,&TableModel::rowRemoved, m_pDataBase, &DataBaseLite::removeRow, Qt::QueuedConnection);
     connect(m_pXmlParser,&XmlParser::fileParsed, m_pDataBase, &DataBaseLite::insertIntoTable, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::cellDataChanged , m_pDataBase, &DataBaseLite::updateIntoTable, Qt::QueuedConnection);
     pDBThread->start();
@@ -103,7 +89,7 @@ void TableViewController::importData()
    auto dirPath = QFileDialog::getExistingDirectory();
 
    QDir dir(dirPath);
-//   m_pProgress = new ProgressImport();
+
    QFileInfoList filesInfo = dir.entryInfoList();
    m_pProgress->clear();
    m_pProgress->setProgressMax(filesInfo.size()-2);
@@ -125,17 +111,17 @@ void TableViewController::editRecord()
 
 void TableViewController::customContextMenuRequested(QPoint position)
 {
-    /* Создаем объект контекстного меню */
+
     QMenu * menu = new QMenu(this);
-    /* Создаём действия для контекстного меню */
+
     QAction* editDevice = new QAction("Edit", this);
     QAction* deleteDevice = new QAction("Delete", this);
     QAction* exportRecord = new QAction("Export",this);
 
-    /* Подключаем СЛОТы обработчики для действий контекстного меню */
-    connect(editDevice, &QAction::triggered, this, &TableViewController::editRecord);     // Обработчик вызова диалога редактирования
-    connect(deleteDevice, &QAction::triggered, this, &TableViewController::clear); // Обработчик удаления записи
-    connect(exportRecord, &QAction::triggered, this, &TableViewController::exportRecord); // Обработчик удаления записи
+
+    connect(editDevice, &QAction::triggered, this, &TableViewController::editRecord);
+    connect(deleteDevice, &QAction::triggered, this, &TableViewController::removeRow);
+    connect(exportRecord, &QAction::triggered, this, &TableViewController::exportRecord);
 
     menu->addAction(editDevice);
     menu->addAction(deleteDevice);
@@ -163,3 +149,7 @@ void TableViewController::exportRecord()
 
 }
 
+void TableViewController::removeRow()
+{
+    m_pModel->removeRow(m_pTableView->selectionModel()->currentIndex().row());
+}

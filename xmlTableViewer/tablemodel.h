@@ -17,8 +17,8 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool removeRow(int row, const QModelIndex& parent = QModelIndex());
     Qt::ItemFlags flags(const QModelIndex& index) const override;
-//    bool insertRows(int row, int count, const QModelIndex& parent);
     bool appendFile(const QHash<QString, QVariant>& file);
     int parseXML(const QString& directoryPath);
 
@@ -26,9 +26,9 @@ signals:
     void tableCreated(const QVector<QString>& columns);
     void cleared();
     void cellDataChanged(int row, const QString& key, const QVariant& value);
+    void rowRemoved(int row);
 
 public slots:
-    void removeSelected();
     void clear();
 private:
     QHash<QString, QVariant> parseXMLfile(const QString &filePath);

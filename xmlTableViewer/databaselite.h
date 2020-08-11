@@ -24,6 +24,7 @@ public:
     bool createDB(const QVector<QString>& columnNames);
     bool isConnected() const;
     void selectAll();
+    bool removeRow(int row);
     void clear();
 private:
     bool open();

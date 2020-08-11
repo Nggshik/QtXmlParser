@@ -11,8 +11,9 @@ DataBaseLite::DataBaseLite(QObject *parent) : QObject(parent)
 
 DataBaseLite::~DataBaseLite()
 {
-    if(m_connected)
+    if(m_connected){
         this->close();
+    }
 }
 /**
  * @brief Open DataBase SqlLite
@@ -47,8 +48,9 @@ void DataBaseLite::close()
 
 bool DataBaseLite::createDB(const QVector<QString>& columnNames)
 {
-    if(this->open())
+    if(!m_connected)
     {
+        this->open();
         QString createQuery = "CREATE TABLE IF NOT EXISTS " + QString(XMLTABLE) + "( ";
         createQuery += "id INTEGER PRIMARY KEY AUTOINCREMENT, ";
         for(auto& name : columnNames)
@@ -180,6 +182,27 @@ bool DataBaseLite::updateIntoTable(int id, const QString& key, const QVariant& v
 
     return true;
 }
+
+bool DataBaseLite::removeRow(int row)
+{
+    if(!this->isConnected())
+        return false;
+
+    QSqlQuery query;
+    QString req =   QString("DELETE FROM %1 WHERE id = %4").arg(XMLTABLE).arg(row+1);
+
+    query.prepare(req);
+
+    if(!query.exec())
+    {
+        qDebug() << "DATABASELITE::UPDATE::ERROR" << query.lastError();
+        return false;
+    }
+
+
+    return true;
+}
+
 
 void DataBaseLite::clear()
 {

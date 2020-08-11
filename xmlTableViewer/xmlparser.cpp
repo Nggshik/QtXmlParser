@@ -7,18 +7,12 @@ XmlParser::XmlParser(QObject *parent) : QObject(parent)
 
 int XmlParser::parseXML(const QString& directoryPath)
 {
-//    if(m_pProgress != nullptr)
-//        m_pProgress->deleteLater();
-
-//    m_pProgress = new ProgressImport();
-
 
     QDir dir(directoryPath);
     QRegExp fileCheckRX("*.xml");
     fileCheckRX.setPatternSyntax(QRegExp::Wildcard);
 
     QFileInfoList filesInfo = dir.entryInfoList();
-//    m_pProgress->setProgressMax(filesInfo.size()-2);
 
     for(auto info : filesInfo)
     {
@@ -28,7 +22,6 @@ int XmlParser::parseXML(const QString& directoryPath)
             {
                 auto xmlParameters = parseXMLfile(info.filePath());
                 if(xmlParameters.size()){
-//                    m_pProgress->okCountUp(xmlParameters.size());
                     emit fileParsed(xmlParameters);
                 }
             }
@@ -36,7 +29,6 @@ int XmlParser::parseXML(const QString& directoryPath)
             {
                 pushProgressError(info.fileName());
             }
-//            m_pProgress->progressStepForward();
             emit fileProcessed();
         }
 
@@ -101,7 +93,6 @@ QHash<QString, QVariant> XmlParser::parseXMLfile(const QString &filePath)
 void XmlParser::pushProgressError(const QString& err)
 {
     qDebug() << "MODEL::FILE::ERROR::" << err;
-//    m_pProgress->pushError(err);
     emit fileError(err);
 }
 
