@@ -1,9 +1,9 @@
 #ifndef TABLEMODEL_H
 #define TABLEMODEL_H
 
+//System include
 #include <QtWidgets>
 
-#include "progressimport.h"
 
 class TableModel : public QAbstractTableModel
 {
@@ -19,9 +19,13 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 //    bool insertRows(int row, int count, const QModelIndex& parent);
-    bool appendFile(QHash<QString, QVariant>&& file);
+    bool appendFile(const QHash<QString, QVariant>& file);
     int parseXML(const QString& directoryPath);
 
+signals:
+    void tableCreated(const QVector<QString>& columns);
+    void cleared();
+    void cellDataChanged(int row, const QString& key, const QVariant& value);
 
 public slots:
     void removeSelected();
@@ -34,8 +38,6 @@ private:
     typedef  QList<FileData> Files;
     Files m_files;
     QVector<QString> m_keys;
-    ProgressImport* m_pProgress = nullptr;
-    QMutex m_mutex;
 };
 
 #endif // TABLEMODEL_H

@@ -16,7 +16,8 @@ public:
     void setProgressMax(size_t max);
     void progressStepForward();
     void errorCountUp(size_t count = 1);
-    void okCountUp(size_t count = 1);
+    void okCountUp();
+    void clear();
 signals:
 
 

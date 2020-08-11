@@ -29,7 +29,6 @@ ProgressImport::ProgressImport(QWidget *parent) : QWidget(parent),
     m_pLayout->addWidget(m_pPlainText);
 
     setLayout(m_pLayout);
-//    show();
 }
 
 void ProgressImport::pushError(const QString &err)
@@ -53,9 +52,9 @@ void ProgressImport::progressStepForward()
     m_pProgress->setValue(m_pProgress->value()+1);
 }
 
-void ProgressImport::okCountUp(size_t count)
+void ProgressImport::okCountUp()
 {
-    m_okCount += count;
+    m_okCount += 1;
     m_pLabel->setText(QString("Imported = %1, Errors = %2").arg(m_okCount).arg(m_errCount));
 }
 
@@ -63,4 +62,13 @@ void ProgressImport::errorCountUp(size_t count)
 {
     m_errCount += count;
     m_pLabel->setText(QString("Imported = %1, Errors = %2").arg(m_okCount).arg(m_errCount));
+}
+
+void ProgressImport::clear()
+{
+    m_errCount = 0;
+    m_okCount = 0;
+    m_pLabel->clear();
+    m_pPlainText->clear();
+    m_pProgress->setValue(0);
 }
