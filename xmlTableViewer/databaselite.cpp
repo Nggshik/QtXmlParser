@@ -22,6 +22,8 @@ DataBaseLite::~DataBaseLite()
  */
 bool DataBaseLite::open()
 {
+    if(m_connected)
+        return true;
     m_db = QSqlDatabase::addDatabase("QSQLITE");
     m_db.setHostName(DATABASE_HOSTNAME);
     m_db.setDatabaseName(DATABASE_NAME);
@@ -48,9 +50,8 @@ void DataBaseLite::close()
 
 bool DataBaseLite::createDB(const QVector<QString>& columnNames)
 {
-    if(!m_connected)
+    if(this->open())
     {
-        this->open();
         QString createQuery = "CREATE TABLE IF NOT EXISTS " + QString(XMLTABLE) + "( ";
         createQuery += "id INTEGER PRIMARY KEY AUTOINCREMENT, ";
         for(auto& name : columnNames)
@@ -85,10 +86,11 @@ bool DataBaseLite::connectDB()
     auto path = QDir::currentPath() + '\\' +DATABASE_NAME;
     if(QFile(path).exists())
     {
-        this->open();
-        m_connected = true;
-        this->selectAll();
-        return true;
+        if(this->open()){
+             m_connected = true;
+            this->selectAll();
+            return true;
+        }
     }
 
     return false;
@@ -119,14 +121,14 @@ void DataBaseLite::selectAll()
     }
     while(query.next())
     {
-        QHash<QString, QVariant> file;
+        QList<QPair<QString, QVariant>> file;
         for(int i = 1; i < columns; ++i)
-            file.insert(columnNames[i-1],query.value(i));
+            file.append(qMakePair(columnNames[i-1],query.value(i)));
         emit dataSelected(file);
     }
 }
 
-bool DataBaseLite::insertIntoTable(const QHash<QString, QVariant>& record)
+bool DataBaseLite::insertIntoTable(const QList<QPair<QString, QVariant>>& record)
 {
     if(!this->isConnected())
         return false;
@@ -136,10 +138,10 @@ bool DataBaseLite::insertIntoTable(const QHash<QString, QVariant>& record)
     QString reqValues = " VALUES ( ";
     /* + *keyIterator + " ) "
                         " VALUES ( :" + *keyIterator + " )";*/
-    for(auto keyIterator = record.keyBegin(); keyIterator != record.keyEnd();  ++keyIterator)
+    for(auto &pair : record)
     {
-        reqInto += *keyIterator + ", ";
-        reqValues += ":"+*keyIterator + ", ";
+        reqInto += pair.first + ", ";
+        reqValues += ":"+pair.first + ", ";
     }
     reqInto += " ) ";
     reqValues += " ) ";
@@ -148,9 +150,9 @@ bool DataBaseLite::insertIntoTable(const QHash<QString, QVariant>& record)
     auto req = reqInto+reqValues;
 
     query.prepare(req);
-    for(auto keyIterator = record.keyBegin(); keyIterator != record.keyEnd();  ++keyIterator)
+    for(auto& pair : record)
     {
-        query.bindValue(":"+*keyIterator, record[*keyIterator]);
+        query.bindValue(":"+pair.first, pair.second);
     }
 
     if(!query.exec())
@@ -226,9 +228,9 @@ void DataBaseLite::clear()
 bool DataBaseLite::deleteDataBase()
 {
     QSqlQuery query;
-    if(query.exec(QString("DROP TABLE IF EXISTS" + QString(XMLTABLE))))
+    if(query.exec(QString("DROP TABLE IF EXISTS %1").arg(XMLTABLE)))
     {
-        m_connected = true;
+        this->close();
         return true;
     }
     else

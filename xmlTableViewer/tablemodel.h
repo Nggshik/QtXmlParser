@@ -19,8 +19,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool removeRow(int row, const QModelIndex& parent = QModelIndex());
     Qt::ItemFlags flags(const QModelIndex& index) const override;
-    bool appendFile(const QHash<QString, QVariant>& file);
-    int parseXML(const QString& directoryPath);
+    bool appendFile(const QList<QPair<QString, QVariant>>& file);
 
 signals:
     void tableCreated(const QVector<QString>& columns);
@@ -30,11 +29,9 @@ signals:
 
 public slots:
     void clear();
+
 private:
-    QHash<QString, QVariant> parseXMLfile(const QString &filePath);
-    void pushProgressError(const QString& err);
-private:
-    typedef  QHash<QString, QVariant> FileData;
+    typedef  QList<QPair<QString, QVariant>> FileData;
     typedef  QList<FileData> Files;
     Files m_files;
     QVector<QString> m_keys;

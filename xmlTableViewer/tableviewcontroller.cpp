@@ -28,7 +28,7 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     connect(pDBThread, &QThread::finished, pDBThread, &QThread::deleteLater);
     connect(m_pDataBase,&DataBaseLite::dataSelected, m_pModel, &TableModel::appendFile, Qt::QueuedConnection);
     connect(m_pModel, &TableModel::tableCreated,m_pDataBase,&DataBaseLite::createDB,  Qt::QueuedConnection);
-    connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::clear, Qt::QueuedConnection);
+    connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::deleteDataBase, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::rowRemoved, m_pDataBase, &DataBaseLite::removeRow, Qt::QueuedConnection);
     connect(m_pXmlParser,&XmlParser::fileParsed, m_pDataBase, &DataBaseLite::insertIntoTable, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::cellDataChanged , m_pDataBase, &DataBaseLite::updateIntoTable, Qt::QueuedConnection);
@@ -135,11 +135,11 @@ void TableViewController::exportRecord()
     ExportFactory fac;
 
     auto row = m_pTableView->selectionModel()->currentIndex().row();
-    QHash<QString, QVariant> record;
+    QList<QPair<QString, QVariant>> record;
     auto count = m_pModel->columnCount();
     for(int i = 0; i < count; ++i)
     {
-        record.insert(m_pModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), m_pModel->index(row,i).data());
+        record.append(qMakePair(m_pModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), m_pModel->index(row,i).data()));
     }
 
     QString filename = QFileDialog::getSaveFileName(this, "Export record",QDir::currentPath(),"Files format (*.xml)");

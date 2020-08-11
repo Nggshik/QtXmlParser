@@ -37,12 +37,12 @@ int XmlParser::parseXML(const QString& directoryPath)
     return 0;
 }
 
-QHash<QString, QVariant> XmlParser::parseXMLfile(const QString &filePath)
+QList<QPair<QString, QVariant>> XmlParser::parseXMLfile(const QString &filePath)
 {
     QRegExp keyValueRX("<(\\w+)>(.+)<\\/(\\w+)>"); //<(\w+)>(.+)<\/(\g1)>
     keyValueRX.setPatternSyntax(QRegExp::RegExp2);
 
-    QHash<QString, QVariant> hash;
+    QList<QPair<QString, QVariant>> list;
 
     QFile file(filePath);
     if(file.open(QIODevice::ReadOnly))
@@ -58,12 +58,12 @@ QHash<QString, QVariant> XmlParser::parseXMLfile(const QString &filePath)
                 auto caps = keyValueRX.capturedTexts();
                 if((caps.size() == 4) && (caps[1] == caps[3]))
                 {
-                    hash.insert(caps[1],caps[2]);
+                    list.append(qMakePair(caps[1],caps[2]));
                 }
                 else
                 {
                     pushProgressError(file.fileName() + "\n At line -" + line);
-                    hash.clear();
+                    list.clear();
                     break;
                 }
             }
@@ -76,7 +76,7 @@ QHash<QString, QVariant> XmlParser::parseXMLfile(const QString &filePath)
                 else
                 {
                     pushProgressError(file.fileName() + "\n At line -" + line);
-                    hash.clear();
+                    list.clear();
                     break;
                 }
             }
@@ -87,7 +87,7 @@ QHash<QString, QVariant> XmlParser::parseXMLfile(const QString &filePath)
     {
         pushProgressError(file.fileName());
     }
-    return  hash;
+    return  list;
 }
 
 void XmlParser::pushProgressError(const QString& err)

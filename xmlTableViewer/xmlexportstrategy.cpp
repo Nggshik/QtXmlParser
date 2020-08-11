@@ -5,7 +5,7 @@ XmlExportStrategy::XmlExportStrategy() : m_fileName("xmlExport.xml")
 
 }
 
-bool XmlExportStrategy::exportToFile(const QHash<QString, QVariant> &record)
+bool XmlExportStrategy::exportToFile(const QList<QPair<QString, QVariant>> &record)
 {
     QFile file(m_fileName);
     if(!file.open(QIODevice::WriteOnly))
@@ -19,10 +19,10 @@ bool XmlExportStrategy::exportToFile(const QHash<QString, QVariant> &record)
 
     out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     out << "<root>\n";
-    for(auto key : record.keys())
+    for(auto pair : record)
     {
 
-            out << QString("\t<%1>%2</%1>\n").arg(key).arg(record[key].toString());
+            out << QString("\t<%1>%2</%1>\n").arg(pair.first).arg(pair.second.toString());
 
     }
     out << "</root>\n";

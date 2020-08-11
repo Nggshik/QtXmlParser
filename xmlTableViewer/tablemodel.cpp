@@ -8,7 +8,7 @@ TableModel::TableModel(QObject* pobj) : QAbstractTableModel(pobj)
 int TableModel::rowCount(const QModelIndex &parent) const
 {
     if(parent.isValid()) return 0; //no children
-    return m_files.size();
+    return m_files.count();
 }
 
 int TableModel::columnCount(const QModelIndex &parent) const
@@ -47,14 +47,14 @@ QVariant TableModel::data(const QModelIndex& index, int role) const
 
     return (role != Qt::DisplayRole && role != Qt::EditRole)
                ? QVariant()
-               : m_files[index.row()][m_keys[index.column()]];
+               : m_files[index.row()][index.column()].second;
 }
 
 bool TableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if(index.isValid() && role == Qt::EditRole)
     {
-        m_files[index.row()][m_keys[index.column()]] = value;
+        m_files[index.row()][index.column()].second = value;
         emit dataChanged(index, index);
         emit cellDataChanged(index.row()+1,m_keys[index.column()], value);
         return true;
@@ -62,15 +62,15 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
     return false;
 }
 
-bool TableModel::appendFile(const QHash<QString, QVariant>& file)
+bool TableModel::appendFile(const QList<QPair<QString, QVariant>>& file)
 {
     if(m_keys.isEmpty())
     {
         auto first = m_keys.count();
-        auto last = m_keys.count() + file.keys().size()-1;
+        auto last = m_keys.count() + file.size()-1;
         beginInsertColumns(QModelIndex(),first, last);
-        for(auto& key : file.keys())
-            m_keys.append(key);
+        for(auto& key : file)
+            m_keys.append(key.first);
         endInsertColumns();
         emit headerDataChanged(Qt::Horizontal,first, last);
         emit tableCreated(m_keys);
@@ -108,10 +108,12 @@ void TableModel::clear()
     m_files.clear();
     endRemoveRows();
 
+
+    beginRemoveColumns(QModelIndex(),0, m_keys.count()-1);
+    m_keys.clear();
+    endRemoveColumns();
+
     emit cleared();
-//    beginRemoveColumns(QModelIndex(),0, m_keys.count()-1);
-//    m_keys.clear();
-//    endRemoveColumns();
 }
 
 

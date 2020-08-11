@@ -9,7 +9,7 @@ class XmlExportStrategy : public IExportStrategy
 {
 public:
     XmlExportStrategy();
-    bool exportToFile(const QHash<QString, QVariant> &record) override;
+    bool exportToFile(const QList<QPair<QString, QVariant>> &record) override;
     bool setFileName(const QString& filename) override;
 private:
     QString m_fileName;

@@ -16,20 +16,21 @@ public:
     explicit DataBaseLite(QObject *parent = nullptr);
     virtual ~DataBaseLite();
 signals:
-    void dataSelected(const QHash<QString, QVariant>& record);
+    void dataSelected(const QList<QPair<QString, QVariant>>& record);
 public:
     bool connectDB();
-    bool insertIntoTable(const QHash<QString, QVariant>& record);
+    bool insertIntoTable(const QList<QPair<QString, QVariant>>& record);
     bool updateIntoTable(int row, const QString& key, const QVariant& value);
     bool createDB(const QVector<QString>& columnNames);
     bool isConnected() const;
     void selectAll();
     bool removeRow(int row);
     void clear();
+    bool deleteDataBase();
 private:
     bool open();
     void close();
-    bool deleteDataBase();
+
 
 private:
     QSqlDatabase m_db;
