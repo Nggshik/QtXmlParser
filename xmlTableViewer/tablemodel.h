@@ -26,6 +26,7 @@ signals:
     void cleared();
     void cellDataChanged(int row, const QString& key, const QVariant& value);
     void rowRemoved(int row);
+    void rowAdded(const QList<QPair<QString, QVariant>>& row);
 
 public slots:
     void clear();

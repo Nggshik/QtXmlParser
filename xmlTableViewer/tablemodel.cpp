@@ -81,7 +81,6 @@ bool TableModel::appendFile(const QList<QPair<QString, QVariant>>& file)
     beginInsertRows(QModelIndex(), row,row);
     m_files.append(file);
     endInsertRows();
-
     return true;
 }
 

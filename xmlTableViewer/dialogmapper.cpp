@@ -1,15 +1,9 @@
 #include "dialogmapper.h"
 
 DialogMapper::DialogMapper(QWidget *parent) : QWidget(parent),
-    m_pMapper(new QDataWidgetMapper),
-    m_pOkBtn(new QPushButton("Ok")),
-    m_pCancelBtn(new QPushButton("Cancel"))
+    m_pMapper(new QDataWidgetMapper)
 {
-
-    connect(m_pOkBtn, &QPushButton::clicked, this, &DialogMapper::okButtonClicked);
-    connect(m_pCancelBtn, &QPushButton::clicked, this, &DialogMapper::hide);
-
-    m_pMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+     m_pMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
     this->setWindowTitle("Edit record");
 
@@ -31,9 +25,18 @@ void DialogMapper::setLineEditorsData(Qt::Orientation orintation, int first, int
 
     if(orintation == Qt::Horizontal)
     {
+        auto currLayout = this->layout();
+        if(currLayout)
+        {
+            qDeleteAll(this->children());
+//            delete currLayout;
+        }
+
         QVBoxLayout *pVLayout = new QVBoxLayout;
         auto model = m_pMapper->model();
-        for(int i = 1; i < model->columnCount(); ++i){
+        m_pMapper->clearMapping();
+
+        for(int i = 0; i < model->columnCount(); ++i){
             QHBoxLayout* pHLayout = new QHBoxLayout;
             QLabel* pNameLabel = new QLabel;
             QLineEdit* pLineEditor = new QLineEdit;
@@ -46,10 +49,15 @@ void DialogMapper::setLineEditorsData(Qt::Orientation orintation, int first, int
             m_pMapper->addMapping(pLineEditor, i);
         }
 
+        QPushButton* pOkBtn = new QPushButton("Ok");
+        QPushButton* pCancelBtn = new QPushButton("Cancel");
+
+        connect(pOkBtn, &QPushButton::clicked, this, &DialogMapper::okButtonClicked);
+        connect(pCancelBtn, &QPushButton::clicked, this, &DialogMapper::hide);
 
         QHBoxLayout* pHLayout = new QHBoxLayout;
-        pHLayout->addWidget(m_pOkBtn);
-        pHLayout->addWidget(m_pCancelBtn);
+        pHLayout->addWidget(pOkBtn);
+        pHLayout->addWidget(pCancelBtn);
         pVLayout->addLayout(pHLayout);
 
         setLayout(pVLayout);

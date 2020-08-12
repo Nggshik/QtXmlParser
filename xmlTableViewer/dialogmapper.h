@@ -21,8 +21,6 @@ private:
     void okButtonClicked();
 private:
     QDataWidgetMapper* m_pMapper;
-    QPushButton* m_pOkBtn;
-    QPushButton* m_pCancelBtn;
 
 };
 
