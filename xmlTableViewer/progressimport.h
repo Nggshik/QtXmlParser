@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QtWidgets>
 
-class ProgressImport : public QWidget
+class ProgressImport : public QDialog
 {
     Q_OBJECT
 public:

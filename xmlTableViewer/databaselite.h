@@ -23,7 +23,7 @@ public slots:
     bool insertIntoTable(const QList<QPair<QString, QVariant>>& record);
     bool updateIntoTable(int row, const QString& key, const QVariant& value);
     bool removeRow(int row);
-    bool deleteDataBase();
+    bool deleteTable();
 
 private:
     bool open();

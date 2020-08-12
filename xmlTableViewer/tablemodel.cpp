@@ -56,7 +56,7 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
     {
         m_files[index.row()][index.column()].second = value;
         emit dataChanged(index, index);
-        emit cellDataChanged(index.row()+1,m_keys[index.column()], value);
+        emit cellDataChanged(index.row(),m_keys[index.column()], value);
         return true;
     }
     return false;

@@ -14,11 +14,15 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
 
     QThread* pXmlThread = new QThread();
     m_pXmlParser->moveToThread(pXmlThread);
+
     connect(pXmlThread, &QThread::finished, pXmlThread, &QThread::deleteLater);
+
     connect(m_pXmlParser,&XmlParser::fileParsed, m_pModel, &TableModel::appendFile, Qt::QueuedConnection);
+
     connect(m_pXmlParser,&XmlParser::fileParsed, m_pProgress, &ProgressImport::okCountUp, Qt::QueuedConnection);
     connect(m_pXmlParser,&XmlParser::fileProcessed, m_pProgress, &ProgressImport::progressStepForward, Qt::QueuedConnection);
     connect(m_pXmlParser,&XmlParser::fileError, m_pProgress, &ProgressImport::pushError, Qt::QueuedConnection);
+
     connect(this,&TableViewController::importXML, m_pXmlParser, &XmlParser::parseXML, Qt::QueuedConnection);
     pXmlThread->start();
 
@@ -29,11 +33,15 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     connect(pDBThread, &QThread::finished, pDBThread, &QThread::deleteLater);
     connect(pDBThread,&QThread::started, m_pDataBase, &DataBaseLite::connectDB, Qt::QueuedConnection);
 
+    /*DataBase and Model connections*/
     connect(m_pDataBase,&DataBaseLite::dataSelected, m_pModel, &TableModel::appendFile, Qt::QueuedConnection);
-    connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::deleteDataBase, Qt::QueuedConnection);
+    connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::deleteTable, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::rowRemoved, m_pDataBase, &DataBaseLite::removeRow, Qt::QueuedConnection);
-    connect(m_pXmlParser,&XmlParser::fileParsed, m_pDataBase, &DataBaseLite::insertIntoTable, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::cellDataChanged , m_pDataBase, &DataBaseLite::updateIntoTable, Qt::QueuedConnection);
+
+    /*DataBase and xmlParser connections*/
+    connect(m_pXmlParser,&XmlParser::fileParsed, m_pDataBase, &DataBaseLite::insertIntoTable, Qt::QueuedConnection);
+
     pDBThread->start();
 
 
@@ -91,10 +99,11 @@ void TableViewController::importData()
    auto dirPath = QFileDialog::getExistingDirectory();
 
    QDir dir(dirPath);
+   dir.setFilter(QDir::Files);
 
-   QFileInfoList filesInfo = dir.entryInfoList();
    m_pProgress->clear();
-   m_pProgress->setProgressMax(filesInfo.size()-2);
+   m_pProgress->setProgressMax(dir.count());
+   m_pProgress->setModal(true);
    m_pProgress->show();
 
    emit importXML(dirPath);

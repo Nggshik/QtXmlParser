@@ -1,6 +1,6 @@
 #include "progressimport.h"
 
-ProgressImport::ProgressImport(QWidget *parent) : QWidget(parent),
+ProgressImport::ProgressImport(QWidget *parent) : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
     m_pLayout(new QVBoxLayout),
     m_pProgress(new QProgressBar),
     m_pLabel(new QLabel),
