@@ -5,6 +5,15 @@ XmlParser::XmlParser(QObject *parent) : QObject(parent)
 
 }
 
+
+/**
+ * @brief XmlParser::parseXML
+ *        Parse all existing file in directory
+ *        emit fileParsed(const QList<QPair<QString, QVariant>>& file) - if file was parsed successfuly
+ *        emit fileProcessed() - if file skiped
+ * @param directoryPath
+ * @return
+ */
 int XmlParser::parseXML(const QString& directoryPath)
 {
 
@@ -37,6 +46,13 @@ int XmlParser::parseXML(const QString& directoryPath)
     return 0;
 }
 
+
+/**
+ * @brief XmlParser::parseXMLfile
+ *        Parse xml file from path
+ * @param filePath
+ * @return
+ */
 QList<QPair<QString, QVariant>> XmlParser::parseXMLfile(const QString &filePath)
 {
     QRegExp keyValueRX("<(\\w+)>(.+)<\\/(\\w+)>"); //<(\w+)>(.+)<\/(\g1)>
@@ -90,6 +106,12 @@ QList<QPair<QString, QVariant>> XmlParser::parseXMLfile(const QString &filePath)
     return  list;
 }
 
+
+/**
+ * @brief XmlParser::pushProgressError
+ *        emit fileError(const QString& err) -user signal
+ * @param err
+ */
 void XmlParser::pushProgressError(const QString& err)
 {
     qDebug() << "MODEL::FILE::ERROR::" << err;

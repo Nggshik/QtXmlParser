@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtWidgets>
 
-class DialogMapper : public QWidget
+class DialogMapper : public QDialog
 {
     Q_OBJECT
 public:

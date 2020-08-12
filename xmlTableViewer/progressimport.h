@@ -11,7 +11,6 @@ public:
     explicit ProgressImport(QWidget *parent = nullptr);
     virtual ~ProgressImport(){;}
 
-    void setErrorsCountString(const QString& err);
     void pushError(const QString& err);
     void setProgressMax(size_t max);
     void progressStepForward();

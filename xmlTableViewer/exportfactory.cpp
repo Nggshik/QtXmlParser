@@ -6,6 +6,13 @@ ExportFactory::ExportFactory(QObject *parent) : QObject(parent)
 
 }
 
+
+/**
+ * @brief ExportFactory::createStrategy
+ *        Create strategy depends on filename suffix(for now only xml)
+ * @param filename
+ * @return IExportStrategy* pointer
+ */
 IExportStrategy* ExportFactory::createStrategy(const QString &filename)
 {
     QStringList types;

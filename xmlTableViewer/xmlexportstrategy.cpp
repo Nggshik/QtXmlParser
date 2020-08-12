@@ -5,6 +5,13 @@ XmlExportStrategy::XmlExportStrategy() : m_fileName("xmlExport.xml")
 
 }
 
+
+/**
+ * @brief XmlExportStrategy::exportToFile
+ *        Export input record to .xml file
+ * @param record
+ * @return
+ */
 bool XmlExportStrategy::exportToFile(const QList<QPair<QString, QVariant>> &record)
 {
     QFile file(m_fileName);
@@ -31,6 +38,12 @@ bool XmlExportStrategy::exportToFile(const QList<QPair<QString, QVariant>> &reco
 }
 
 
+/**
+ * @brief XmlExportStrategy::setFileName
+ *        Set filename to export
+ * @param filename
+ * @return
+ */
 bool XmlExportStrategy::setFileName(const QString &filename){
 
     QRegExp fileCheckRX("*.xml");

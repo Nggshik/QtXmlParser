@@ -1,6 +1,6 @@
 #include "dialogmapper.h"
 
-DialogMapper::DialogMapper(QWidget *parent) : QWidget(parent),
+DialogMapper::DialogMapper(QWidget *parent) : QDialog(parent),
     m_pMapper(new QDataWidgetMapper)
 {
      m_pMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -10,8 +10,12 @@ DialogMapper::DialogMapper(QWidget *parent) : QWidget(parent),
 }
 
 
-
-
+/**
+ * @brief DialogMapper::setModel
+ *        Accept QAbstractItemModel to set in QDataWidgetMaper
+ *        connect columns names to header model names
+ * @param model
+ */
 void DialogMapper::setModel(QAbstractItemModel* model)
 {
     m_pMapper->setModel(model);
@@ -25,11 +29,11 @@ void DialogMapper::setLineEditorsData(Qt::Orientation orintation, int first, int
 
     if(orintation == Qt::Horizontal)
     {
+        //Delete all UI element before create new UI layout
         auto currLayout = this->layout();
         if(currLayout)
         {
             qDeleteAll(this->children());
-//            delete currLayout;
         }
 
         QVBoxLayout *pVLayout = new QVBoxLayout;
@@ -38,22 +42,23 @@ void DialogMapper::setLineEditorsData(Qt::Orientation orintation, int first, int
 
         for(int i = 0; i < model->columnCount(); ++i){
             QHBoxLayout* pHLayout = new QHBoxLayout;
-            QLabel* pNameLabel = new QLabel;
-            QLineEdit* pLineEditor = new QLineEdit;
+
+            QLabel* pNameLabel = new QLabel; //Discription
+            QLineEdit* pLineEditor = new QLineEdit; //Input field
 
             QString text = model->headerData(i, Qt::Horizontal).toString(); //take name from header model data
             pNameLabel->setText(text);
             pHLayout->addWidget(pNameLabel);
             pHLayout->addWidget(pLineEditor);
             pVLayout->addLayout(pHLayout);
-            m_pMapper->addMapping(pLineEditor, i);
+            m_pMapper->addMapping(pLineEditor, i); //Add mapping with column i
         }
 
         QPushButton* pOkBtn = new QPushButton("Ok");
         QPushButton* pCancelBtn = new QPushButton("Cancel");
 
         connect(pOkBtn, &QPushButton::clicked, this, &DialogMapper::okButtonClicked);
-        connect(pCancelBtn, &QPushButton::clicked, this, &DialogMapper::hide);
+        connect(pCancelBtn, &QPushButton::clicked, this, &DialogMapper::close);
 
         QHBoxLayout* pHLayout = new QHBoxLayout;
         pHLayout->addWidget(pOkBtn);
@@ -64,6 +69,12 @@ void DialogMapper::setLineEditorsData(Qt::Orientation orintation, int first, int
     }
 }
 
+
+/**
+ * @brief DialogMapper::editRecord
+ *        Set QDataWidgetMapper to selected row and show dialog window
+ * @param row - selected row
+ */
 void DialogMapper::editRecord(int row)
 {
 
@@ -72,11 +83,16 @@ void DialogMapper::editRecord(int row)
     } else {
         m_pMapper->setCurrentModelIndex(m_pMapper->model()->index(row,0));
     }
-    show();
+    this->exec();
 }
 
+
+/**
+ * @brief DialogMapper::okButtonClicked
+ *        Slot to okButton action call submit data QDataWidgetMapper and close window
+ */
 void DialogMapper::okButtonClicked()
 {
     m_pMapper->submit();
-    this->hide();
+    this->close();
 }

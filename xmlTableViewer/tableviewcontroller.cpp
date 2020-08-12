@@ -1,7 +1,9 @@
 #include "tableviewcontroller.h"
 #include "exportfactory.h"
 
-#include <QAbstractItemModelTester>
+#ifdef QT_DEBUG
+    #include <QAbstractItemModelTester>
+#endif
 
 TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     m_pModel(new TableModel(this)),
@@ -10,8 +12,13 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     m_pDataBase(new DataBaseLite),
     m_pProgress(new ProgressImport)
 {
+//Tester for model
+#ifdef QT_DEBUG
    new QAbstractItemModelTester(m_pModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
+#endif
 
+
+    //Move xmlParser in thread and connect signals with model by QueuedConnection
     QThread* pXmlThread = new QThread();
     m_pXmlParser->moveToThread(pXmlThread);
 
@@ -26,6 +33,7 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
     connect(this,&TableViewController::importXML, m_pXmlParser, &XmlParser::parseXML, Qt::QueuedConnection);
     pXmlThread->start();
 
+    //Move DataBase in thread and connect signals with model by QueuedConnection
     QThread* pDBThread = new QThread();
     m_pDataBase->moveToThread(pDBThread);
 
@@ -54,6 +62,13 @@ TableViewController::~TableViewController()
     if(m_pDataBase) delete m_pDataBase;
     if(m_pProgress) delete m_pProgress;
 }
+
+
+/**
+ * @brief TableViewController::createUI
+ *        Create UI of TableView with Model
+ *        Set model into dialogMapper
+ */
 void TableViewController::createUI()
 {
 
@@ -94,6 +109,13 @@ void TableViewController::createUI()
 
 }
 
+
+/**
+ * @brief TableViewController::importData
+ *        Call QFileDialog to choice directory to export *.xml files
+ *        Set ProgressImport count of files to parse
+ *        emit importXML - user signal
+ */
 void TableViewController::importData()
 {
    auto dirPath = QFileDialog::getExistingDirectory();
@@ -110,16 +132,32 @@ void TableViewController::importData()
 
 }
 
+
+/**
+ * @brief TableViewController::clear
+ *        Call model clear
+ */
 void TableViewController::clear()
 {
     m_pModel->clear();
 }
 
+
+/**
+ * @brief TableViewController::editRecord
+ *        Call dialogMapper to edit selected row
+ */
 void TableViewController::editRecord()
 {
     m_pMapper->editRecord(m_pTableView->selectionModel()->currentIndex().row());
 }
 
+
+/**
+ * @brief TableViewController::customContextMenuRequested
+ *        Create custom context menu in position
+ * @param position
+ */
 void TableViewController::customContextMenuRequested(QPoint position)
 {
 
@@ -141,6 +179,12 @@ void TableViewController::customContextMenuRequested(QPoint position)
     menu->popup(m_pTableView->viewport()->mapToGlobal(position));
 }
 
+
+/**
+ * @brief TableViewController::exportRecord
+ *        Used ExportFactory to create export strategy by filename
+ *        Call export strategy to export file
+ */
 void TableViewController::exportRecord()
 {
     ExportFactory fac;
@@ -160,6 +204,11 @@ void TableViewController::exportRecord()
 
 }
 
+
+/**
+ * @brief TableViewController::removeRow
+ *        Remove selected row from model
+ */
 void TableViewController::removeRow()
 {
     m_pModel->removeRow(m_pTableView->selectionModel()->currentIndex().row());
