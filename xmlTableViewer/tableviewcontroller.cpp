@@ -24,10 +24,12 @@ TableViewController::TableViewController(QWidget *parent) : QWidget(parent),
 
     QThread* pDBThread = new QThread();
     m_pDataBase->moveToThread(pDBThread);
-    connect(pDBThread,&QThread::started, m_pDataBase, &DataBaseLite::connectDB, Qt::QueuedConnection);
+
+    /*DataBase thread connections*/
     connect(pDBThread, &QThread::finished, pDBThread, &QThread::deleteLater);
+    connect(pDBThread,&QThread::started, m_pDataBase, &DataBaseLite::connectDB, Qt::QueuedConnection);
+
     connect(m_pDataBase,&DataBaseLite::dataSelected, m_pModel, &TableModel::appendFile, Qt::QueuedConnection);
-    connect(m_pModel, &TableModel::tableCreated,m_pDataBase,&DataBaseLite::createDB,  Qt::QueuedConnection);
     connect(m_pModel,&TableModel::cleared, m_pDataBase, &DataBaseLite::deleteDataBase, Qt::QueuedConnection);
     connect(m_pModel,&TableModel::rowRemoved, m_pDataBase, &DataBaseLite::removeRow, Qt::QueuedConnection);
     connect(m_pXmlParser,&XmlParser::fileParsed, m_pDataBase, &DataBaseLite::insertIntoTable, Qt::QueuedConnection);

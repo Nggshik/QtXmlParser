@@ -11,7 +11,7 @@ DataBaseLite::DataBaseLite(QObject *parent) : QObject(parent)
 
 DataBaseLite::~DataBaseLite()
 {
-    if(m_connected){
+    if(m_db.isOpen()){
         this->close();
     }
 }
@@ -22,7 +22,7 @@ DataBaseLite::~DataBaseLite()
  */
 bool DataBaseLite::open()
 {
-    if(m_connected)
+    if(m_db.isOpen())
         return true;
     m_db = QSqlDatabase::addDatabase("QSQLITE");
     m_db.setHostName(DATABASE_HOSTNAME);
@@ -44,12 +44,13 @@ bool DataBaseLite::open()
 void DataBaseLite::close()
 {
     m_db.close();
-    m_connected = false;
 }
 
 
 bool DataBaseLite::createDB(const QVector<QString>& columnNames)
 {
+    if(isTableExist())
+        return true;
     if(this->open())
     {
         QString createQuery = "CREATE TABLE IF NOT EXISTS " + QString(XMLTABLE) + "( ";
@@ -65,7 +66,7 @@ bool DataBaseLite::createDB(const QVector<QString>& columnNames)
         QSqlQuery query;
         if(query.exec(createQuery))
         {
-            m_connected = true;
+            m_bTableExists = true;
             return true;
         }
         else
@@ -87,7 +88,7 @@ bool DataBaseLite::connectDB()
     if(QFile(path).exists())
     {
         if(this->open()){
-             m_connected = true;
+            m_bTableExists = this->checkTableExists(XMLTABLE);
             this->selectAll();
             return true;
         }
@@ -96,21 +97,42 @@ bool DataBaseLite::connectDB()
     return false;
 }
 
-bool DataBaseLite::isConnected() const
+bool DataBaseLite::isOpen() const
 {
-    return m_connected;
+    return m_db.isOpen();
 }
 
+bool DataBaseLite::isTableExist() const
+{
+    return m_bTableExists;
+}
+
+bool DataBaseLite::checkTableExists(const QString& name)
+{
+    QSqlQuery query;
+    query.prepare(QString("SELECT name FROM SQLITE_MASTER WHERE TYPE = 'TABLE' AND name = '%1'").arg(name));
+
+    if(!query.exec())
+    {
+        qDebug() << "DATABASELITE::EXISTSTABLE:ERROR" << query.lastError();
+        return false;
+    }
+
+    if(query.record().count())
+        return true;
+    return false;
+}
 void DataBaseLite::selectAll()
 {
-
+    if(!this->isTableExist())
+        return;
     QVector<QString> columnNames;
     QSqlQuery query;
     query.prepare("SELECT * FROM " + QString(XMLTABLE));
 
     if(!query.exec())
     {
-        qDebug() << "DATABASELITE::SELECT:ERROR";
+        qDebug() << "DATABASELITE::SELECT:ERROR" << query.lastError();
     }
 
     QSqlRecord rec = query.record();
@@ -130,8 +152,16 @@ void DataBaseLite::selectAll()
 
 bool DataBaseLite::insertIntoTable(const QList<QPair<QString, QVariant>>& record)
 {
-    if(!this->isConnected())
-        return false;
+    if(!this->isTableExist())
+    {
+        QVector<QString> columns;
+        for(auto& pair : record)
+        {
+            columns.append(pair.first);
+        }
+        if(!this->createDB(columns))
+            return false;
+    }
 
     QSqlQuery query;
     QString reqInto =   "INSERT INTO " + QString(XMLTABLE) + "( ";
@@ -157,7 +187,7 @@ bool DataBaseLite::insertIntoTable(const QList<QPair<QString, QVariant>>& record
 
     if(!query.exec())
     {
-        qDebug() << "DATABASELITE::INSERT::ERROR";
+        qDebug() << "DATABASELITE::INSERT::ERROR" << query.lastError();
         return false;
     }
 
@@ -167,7 +197,7 @@ bool DataBaseLite::insertIntoTable(const QList<QPair<QString, QVariant>>& record
 
 bool DataBaseLite::updateIntoTable(int id, const QString& key, const QVariant& value)
 {
-    if(!this->isConnected())
+    if(!this->isTableExist())
         return false;
 
     QSqlQuery query;
@@ -187,7 +217,7 @@ bool DataBaseLite::updateIntoTable(int id, const QString& key, const QVariant& v
 
 bool DataBaseLite::removeRow(int row)
 {
-    if(!this->isConnected())
+    if(!this->isTableExist())
         return false;
 
     QSqlQuery query;
@@ -213,7 +243,7 @@ void DataBaseLite::clear()
 
     if(!query.exec())
     {
-        qDebug() << "DATABASELITE::DELETE:ERROR";
+        qDebug() << "DATABASELITE::DELETE:ERROR" << query.lastError();
     }
 
     auto req = QString("DELETE FROM SQLITE_SEQUENCE WHERE name='%1'").arg(XMLTABLE);
@@ -221,7 +251,7 @@ void DataBaseLite::clear()
 
     if(!query.exec())
     {
-        qDebug() << "DATABASELITE::DELETE:ERROR";
+        qDebug() << "DATABASELITE::DELETE:ERROR" << query.lastError();
     }
 }
 
@@ -231,6 +261,7 @@ bool DataBaseLite::deleteDataBase()
     if(query.exec(QString("DROP TABLE IF EXISTS %1").arg(XMLTABLE)))
     {
         this->close();
+        m_bTableExists = false;
         return true;
     }
     else

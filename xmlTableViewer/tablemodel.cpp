@@ -73,7 +73,6 @@ bool TableModel::appendFile(const QList<QPair<QString, QVariant>>& file)
             m_keys.append(key.first);
         endInsertColumns();
         emit headerDataChanged(Qt::Horizontal,first, last);
-        emit tableCreated(m_keys);
     }
 
     int row = m_files.count();
