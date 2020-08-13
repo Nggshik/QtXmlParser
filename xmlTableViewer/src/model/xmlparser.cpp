@@ -9,6 +9,19 @@ XmlParser::XmlParser(QObject *parent) : QObject(parent)
 /**
  * @brief XmlParser::parseXML
  *        Parse all existing file in directory
+ *        Contract: XML files should have same list of tags and only one row
+ *
+ *        Example file:
+ *        <?xml version="1.0" encoding="UTF-8"?>
+ *              <root>
+ *                  <texteditor>Atom</texteditor>
+ *                  <fileformats>everything</fileformats>
+ *                  <encoding>ANSI; UTF;</encoding>
+ *                  <hasintellisense>true</hasintellisense>
+ *                  <hasplugins>true</hasplugins>
+ *                  <cancompile>false</cancompile>
+ *              </root>
+ *
  *        emit fileParsed(const QList<QPair<QString, QVariant>>& file) - if file was parsed successfuly
  *        emit fileProcessed() - if file skiped
  * @param directoryPath
