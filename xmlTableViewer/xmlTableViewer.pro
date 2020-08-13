@@ -1,15 +1,3 @@
-#QMAKE_EXTRA_TARGETS += before_build makefilehook
-
-#makefilehook.target = $(MAKEFILE)
-#makefilehook.depends = .beforebuild
-
-#PRE_TARGETDEPS += .beforebuild
-
-
-#before_build.target = .beforebuild
-#before_build.depends = FORCE
-#before_build.commands = chcp 1251
-
 
 QT       += core gui sql testlib
 
@@ -28,27 +16,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+
+INCLUDEPATH += \
+    $$PWD/src/controller \
+    $$PWD/src/exportStrategy \
+    $$PWD/src/model \
+    $$PWD/src/service
+
 SOURCES += \
-    databaselite.cpp \
-    dialogmapper.cpp \
-    exportfactory.cpp \
-    main.cpp \
-    progressimport.cpp \
-    tablemodel.cpp \
-    tableviewcontroller.cpp \
-    xmlexportstrategy.cpp \
-    xmlparser.cpp
+    src/controller/tableviewcontroller.cpp \
+    src/exportStrategy/exportfactory.cpp \
+    src/exportStrategy/xmlexportstrategy.cpp \
+    src/main.cpp \
+    src/model/databaselite.cpp \
+    src/model/dialogmapper.cpp \
+    src/model/tablemodel.cpp \
+    src/model/xmlparser.cpp \
+    src/service/progressimport.cpp \
+
 
 HEADERS += \
-    IExportStrategy.h \
-    databaselite.h \
-    dialogmapper.h \
-    exportfactory.h \
-    progressimport.h \
-    tablemodel.h \
-    tableviewcontroller.h \
-    xmlexportstrategy.h \
-    xmlparser.h
+    src/controller/tableviewcontroller.h \
+    src/exportStrategy/IExportStrategy.h \
+    src/exportStrategy/exportfactory.h \
+    src/exportStrategy/xmlexportstrategy.h \
+    src/model/databaselite.h \
+    src/model/dialogmapper.h \
+    src/model/tablemodel.h \
+    src/model/xmlparser.h \
+    src/service/progressimport.h \
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
